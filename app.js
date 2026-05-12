@@ -556,7 +556,9 @@ function renderLists() {
         <div class="progress-fill${pct===100?" complete":""}" style="width:${pct}%"></div>
       </div>` : "";
     const statusBadge = list.completed
-      ? `<span class="completed-badge">✓ Abgeschlossen</span>`
+      ? (done < total
+          ? `<span class="completed-warning-badge">⚠️ ${total - done} nicht abgehakt</span>`
+          : `<span class="completed-badge">✓ Abgeschlossen${list.completedAt ? " · " + new Date(list.completedAt).toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"}) : ""}</span>`)
       : "";
     return `
     <button class="list-card" onclick="openList('${list.id}')">
@@ -647,7 +649,18 @@ function renderDetail() {
   const btnComplete     = document.getElementById("btn-complete-list");
 
   // Completed banner
-  completedBanner.style.display = list.completed ? "flex" : "none";
+  if (list.completed) {
+    completedBanner.style.display = "flex";
+    let bannerText = "✅ Einkauf abgeschlossen";
+    if (list.completedAt) {
+      const d = new Date(list.completedAt);
+      const dateStr = d.toLocaleDateString("de-DE", {weekday:"short", day:"2-digit", month:"2-digit", year:"numeric"});
+      bannerText += ` am ${dateStr}`;
+    }
+    completedBanner.textContent = bannerText;
+  } else {
+    completedBanner.style.display = "none";
+  }
 
   // Complete / Reopen button
   if (total > 0) {
@@ -747,26 +760,29 @@ window.completeList = async function() {
   const list = lists.find(l => l.id === activeId); if (!list) return;
   const items = list.items || [];
   const undone = items.filter(i => !i.done).length;
+  const now = Date.now();
   if (undone > 0) {
     openDialog(
       "Noch nicht fertig! ⚠️",
       `Noch ${undone} Artikel ${undone === 1 ? "ist" : "sind"} nicht abgehakt. Trotzdem abschließen?`,
       async () => {
-        await saveList({...list, completed: true});
+        await saveList({...list, completed: true, completedAt: now});
         showToast("🎉 Einkauf abgeschlossen!");
         showView("lists");
       },
       "Trotzdem abschließen"
     );
   } else {
-    await saveList({...list, completed: true});
+    await saveList({...list, completed: true, completedAt: now});
     showToast("🎉 Einkauf abgeschlossen!");
     showView("lists");
   }
 };
 window.reopenList = async function() {
   const list = lists.find(l => l.id === activeId); if (!list) return;
-  await saveList({...list, completed: false});
+  const updated = {...list, completed: false};
+  delete updated.completedAt;
+  await saveList(updated);
   showToast("🔓 Einkauf wieder geöffnet");
 };
 window.confirmDeleteList = function() {

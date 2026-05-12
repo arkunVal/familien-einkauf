@@ -86,6 +86,7 @@
           <span class="dot">·</span>von <strong id="detail-creator"></strong>
         </p>
       </div>
+      <button class="btn-icon-add" onclick="showView('add')" aria-label="Artikel hinzufügen" title="Artikel hinzufügen">＋</button>
       <button class="btn-icon-danger" onclick="confirmDeleteList()">🗑</button>
     </div>
     <div id="detail-progress-wrap" class="progress-wrap" style="display:none">
@@ -109,11 +110,8 @@
     <div id="detail-empty" class="empty-state small" style="display:none">
       <div class="big-emoji" style="font-size:44px">🛒</div>
       <h3 style="font-size:17px">Noch leer</h3>
-      <p>Tippe auf „Artikel hinzufügen"</p>
+      <p>Tippe oben auf <strong>＋</strong> um Artikel hinzuzufügen</p>
     </div>
-    <button class="fab" onclick="showView('add')">
-      <span class="fab-plus">+</span><span>Artikel hinzufügen</span>
-    </button>
   </div>
 
   <!-- ══ ARTIKEL HINZUFÜGEN ════════════════════════════════════ -->
