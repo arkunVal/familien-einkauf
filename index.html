@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="theme-color" content="#2C4A35" />
+  <title>Familien Einkauf 🛒</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Nunito+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ══ LOADING ══════════════════════════════════════════════════════ -->
+  <div id="view-loading" class="view active">
+    <div class="loading-wrap">
+      <div class="loading-icon">🛒</div>
+      <p class="loading-text">Verbinde…</p>
+    </div>
+  </div>
+
+  <!-- ══ VIEW: LISTEN-ÜBERSICHT ══════════════════════════════════════ -->
+  <div id="view-lists" class="view">
+    <div class="hero-banner">
+      <div class="hero-content">
+        <h1>Familien<br>Einkauf</h1>
+        <p class="hero-sub">Für die ganze Familie 🏡</p>
+        <div class="live-dot"><span></span> Live-Sync aktiv</div>
+      </div>
+      <div class="hero-cart">🛒</div>
+    </div>
+
+    <div id="list-cards" class="list-cards"></div>
+
+    <div id="lists-empty" class="empty-state" style="display:none">
+      <div class="big-emoji">🛍️</div>
+      <h3>Noch keine Listen</h3>
+      <p>Erstelle deine erste Einkaufsliste!</p>
+    </div>
+
+    <button class="fab" onclick="showView('new-list')" aria-label="Neue Liste">
+      <span class="fab-plus">+</span>
+      <span>Neue Liste</span>
+    </button>
+  </div>
+
+  <!-- ══ VIEW: NEUE LISTE ════════════════════════════════════════════ -->
+  <div id="view-new-list" class="view">
+    <div class="topbar">
+      <button class="btn-back" onclick="showView('lists')">←</button>
+      <h2>Neue Liste</h2>
+    </div>
+
+    <div class="form-section">
+      <div class="field">
+        <label for="new-name">Listenname</label>
+        <input type="text" id="new-name" placeholder="z.B. Wocheneinkauf…"
+               autocomplete="off" autocorrect="off" spellcheck="false" />
+      </div>
+      <div class="field">
+        <label for="new-creator">Erstellt von</label>
+        <input type="text" id="new-creator" placeholder="Dein Name"
+               autocomplete="off" autocorrect="off" spellcheck="false" />
+      </div>
+      <div class="field">
+        <label for="new-week">Woche</label>
+        <input type="date" id="new-week" oninput="updateWeekPreview()" />
+        <div id="week-preview" class="week-preview">
+          📅 <span id="week-preview-text"></span>
+        </div>
+      </div>
+      <div id="create-error" class="error-msg" style="display:none"></div>
+      <button class="btn-primary" id="btn-create" onclick="createList()">
+        ✨ Liste erstellen
+      </button>
+    </div>
+  </div>
+
+  <!-- ══ VIEW: LISTENDETAIL ══════════════════════════════════════════ -->
+  <div id="view-detail" class="view">
+    <div class="topbar">
+      <button class="btn-back" onclick="showView('lists')">←</button>
+      <div class="topbar-info">
+        <h2 id="detail-name">Liste</h2>
+        <p class="detail-meta">
+          <span>📅</span>
+          <span id="detail-week"></span>
+          <span class="dot">·</span>
+          von <strong id="detail-creator"></strong>
+        </p>
+      </div>
+      <button class="btn-icon-danger" onclick="confirmDeleteList()" aria-label="Liste löschen">🗑</button>
+    </div>
+
+    <div id="detail-progress-wrap" class="progress-wrap" style="display:none">
+      <div class="progress-row">
+        <span id="progress-text"></span>
+        <span id="pct-text"></span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div id="cat-sections"></div>
+
+    <div id="detail-empty" class="empty-state small" style="display:none">
+      <div class="big-emoji" style="font-size:44px">🛒</div>
+      <h3 style="font-size:17px">Noch leer</h3>
+      <p>Tippe auf „Artikel hinzufügen"</p>
+    </div>
+
+    <button class="fab" onclick="showView('add')" aria-label="Artikel hinzufügen">
+      <span class="fab-plus">+</span>
+      <span>Artikel hinzufügen</span>
+    </button>
+  </div>
+
+  <!-- ══ VIEW: ARTIKEL HINZUFÜGEN ═══════════════════════════════════ -->
+  <div id="view-add" class="view">
+    <div class="topbar">
+      <button class="btn-back" onclick="showView('detail')">←</button>
+      <h2>Hinzufügen</h2>
+    </div>
+
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="search" id="search-input" placeholder="Suchen…"
+             oninput="renderItemGrid()" autocomplete="off" />
+    </div>
+
+    <div id="cat-filters" class="cat-filters"></div>
+    <div id="items-grid" class="items-grid"></div>
+
+    <div class="divider-label">Eigener Artikel</div>
+    <div class="custom-row">
+      <input type="text" id="custom-name" placeholder="z.B. Hummus"
+             autocomplete="off" autocorrect="off" />
+      <select id="custom-cat"></select>
+    </div>
+    <button class="btn-primary" onclick="addCustomItem()" style="margin-bottom: env(safe-area-inset-bottom, 16px)">
+      Hinzufügen
+    </button>
+  </div>
+
+</div><!-- /app -->
+
+<!-- ── TOAST ───────────────────────────────────────────────────────── -->
+<div id="toast" role="alert" aria-live="polite"></div>
+
+<!-- ── CONFIRM DIALOG ─────────────────────────────────────────────── -->
+<div class="overlay" id="confirm-overlay" role="dialog" aria-modal="true">
+  <div class="dialog">
+    <h3 id="dlg-title">Bist du sicher?</h3>
+    <p id="dlg-body"></p>
+    <div class="dialog-btns">
+      <button id="dlg-cancel" onclick="closeDialog()">Abbrechen</button>
+      <button id="dlg-confirm">Löschen</button>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
