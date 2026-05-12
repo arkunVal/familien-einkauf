@@ -14,6 +14,8 @@
   --green-bg:  #E8F4EC;
   --danger:    #C0392B;
   --success:   #27AE60;
+  --note-col:  #D4A017;
+  --note-bg:   #FEF9EC;
   --shadow-sm: 0 1px 3px rgba(42,32,16,.08), 0 1px 2px rgba(42,32,16,.04);
   --shadow:    0 4px 16px rgba(42,32,16,.10), 0 1px 4px rgba(42,32,16,.05);
   --shadow-lg: 0 16px 48px rgba(42,32,16,.16), 0 4px 16px rgba(42,32,16,.08);
@@ -77,8 +79,14 @@ body {
   font-size: 20px; font-weight: 900; color: var(--ink); flex: 1;
 }
 .topbar-info { flex: 1; min-width: 0; }
-.topbar-info h2 { font-size: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.detail-meta { font-size: 12px; color: var(--ink3); display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.topbar-info h2 {
+  font-size: 18px; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.detail-meta {
+  font-size: 12px; color: var(--ink3);
+  display: flex; align-items: center; gap: 4px; flex-wrap: wrap;
+}
 .detail-meta strong { color: var(--ink2); }
 .dot { opacity: .4; }
 
@@ -101,7 +109,7 @@ body {
   font-size: 20px; flex-shrink: 0;
   -webkit-tap-highlight-color: transparent;
 }
-.btn-icon-danger:active { background: #FDECEA; border-radius: 50%; }
+.btn-icon-danger:active { background: #FDECEA; }
 
 .btn-primary {
   width: 100%; min-height: 54px;
@@ -188,7 +196,8 @@ body {
 input[type=text],
 input[type=date],
 input[type=search],
-select {
+select,
+textarea {
   width: 100%; padding: 14px 15px;
   border: 1.5px solid var(--border); border-radius: var(--r-sm);
   background: var(--surface); color: var(--ink);
@@ -196,11 +205,16 @@ select {
   outline: none; -webkit-appearance: none; appearance: none;
   transition: border-color .15s, box-shadow .15s;
 }
-input:focus, select:focus {
+textarea {
+  resize: vertical;
+  min-height: 90px;
+  line-height: 1.5;
+}
+input:focus, select:focus, textarea:focus {
   border-color: var(--green);
   box-shadow: 0 0 0 3px rgba(46,107,64,.14);
 }
-input::placeholder { color: var(--ink3); }
+input::placeholder, textarea::placeholder { color: var(--ink3); }
 
 .week-preview {
   margin-top: 8px; padding: 10px 14px;
@@ -231,8 +245,7 @@ input::placeholder { color: var(--ink3); }
 .list-card-name { font-family: var(--font-h); font-size: 17px; font-weight: 800; color: var(--ink); }
 .list-card-week { font-size: 12px; color: var(--ink3); margin-top: 3px; }
 .list-card-meta { text-align: right; flex-shrink: 0; margin-left: 10px; }
-.list-card-creator { font-size: 11px; color: var(--ink3); }
-.list-card-count { font-family: var(--font-h); font-size: 13px; font-weight: 800; color: var(--ink2); margin-top: 2px; }
+.list-card-count { font-family: var(--font-h); font-size: 13px; font-weight: 800; color: var(--ink2); }
 .list-card-count.all-done { color: var(--success); }
 .emoji-row { display: flex; gap: 2px; margin-bottom: 10px; font-size: 19px; flex-wrap: wrap; }
 .emoji-more { font-size: 12px; color: var(--ink3); align-self: center; margin-left: 3px; }
@@ -252,7 +265,7 @@ input::placeholder { color: var(--ink3); }
 .empty-state h3 { font-family: var(--font-h); font-size: 19px; font-weight: 800; color: var(--ink); margin-bottom: 5px; }
 .empty-state p { font-size: 14px; color: var(--ink3); }
 
-/* ── ITEM ROWS ───────────────────────────────────────────────── */
+/* ── CATEGORY LABEL ──────────────────────────────────────────── */
 .cat-section { margin-bottom: 22px; }
 .cat-label {
   display: inline-flex; align-items: center; gap: 5px;
@@ -260,32 +273,98 @@ input::placeholder { color: var(--ink3); }
   font-family: var(--font-h); font-size: 12px; font-weight: 800;
   margin-bottom: 9px; letter-spacing: .02em;
 }
+
+/* ── ITEM ROW ────────────────────────────────────────────────── */
+/*
+  Layout: [emoji] [name+note-tag] ←flex→ [qty−/num/+] [check] [del]
+  Controls are always on the right.
+*/
 .item-row {
-  display: flex; align-items: center; gap: 10px;
-  padding: 11px 13px;
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: var(--r); margin-bottom: 7px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  margin-bottom: 7px;
   box-shadow: var(--shadow-sm);
   transition: opacity .22s;
   -webkit-tap-highlight-color: transparent;
 }
-.item-row.done-row { opacity: .4; }
-.item-emoji { font-size: 24px; flex-shrink: 0; }
+.item-row.done-row { opacity: .42; }
+
+.item-emoji { font-size: 22px; flex-shrink: 0; }
+
+/* Name + optional note-tag, takes all remaining space */
+.item-name-wrap {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
 .item-name {
-  flex: 1; font-size: 15px; font-weight: 500; color: var(--ink);
-  min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-size: 15px; font-weight: 500; color: var(--ink);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .item-row.done-row .item-name { text-decoration: line-through; }
 
-/* ── QUANTITY STEPPER (in item row) ──────────────────────────── */
+/* Note tag shown below the name */
+.item-note-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--note-col);
+  background: var(--note-bg);
+  border-radius: 6px;
+  padding: 2px 7px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.item-note-tag svg {
+  width: 11px; height: 11px;
+  flex-shrink: 0;
+  stroke: var(--note-col);
+}
+
+/* Controls: always on the right, flex-shrink: 0 */
+.item-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+/* ── NOTE BUTTON (icon only, shown when no note exists) ──────── */
+.note-btn {
+  width: 30px; height: 30px; border-radius: 50%;
+  border: none; background: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+  transition: background .15s;
+  flex-shrink: 0;
+  color: var(--ink3);
+}
+.note-btn svg { width: 15px; height: 15px; stroke: currentColor; }
+.note-btn:active { background: var(--note-bg); color: var(--note-col); }
+/* When a note exists, show via item-note-tag instead. The button hides. */
+.note-btn.hidden { display: none; }
+
+/* ── QUANTITY STEPPER ────────────────────────────────────────── */
 .qty-stepper {
-  display: flex; align-items: center; gap: 0;
+  display: flex; align-items: center;
   background: var(--surface2); border-radius: 20px;
   flex-shrink: 0;
 }
 .qty-step {
-  width: 30px; height: 30px; border: none; background: none;
-  cursor: pointer; font-size: 18px; font-weight: 700;
+  width: 28px; height: 28px; border: none; background: none;
+  cursor: pointer; font-size: 17px; font-weight: 700;
   color: var(--ink2); display: flex; align-items: center; justify-content: center;
   border-radius: 50%;
   -webkit-tap-highlight-color: transparent;
@@ -294,13 +373,13 @@ input::placeholder { color: var(--ink3); }
 }
 .qty-step:active { background: var(--border2); }
 .qty-num {
-  min-width: 22px; text-align: center;
+  min-width: 20px; text-align: center;
   font-family: var(--font-h); font-size: 13px; font-weight: 800;
   color: var(--ink);
 }
 
 .check-btn {
-  width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+  width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
   border: 2px solid var(--border2); background: var(--surface);
   cursor: pointer; display: flex; align-items: center; justify-content: center;
   font-size: 14px; color: var(--success);
@@ -311,10 +390,10 @@ input::placeholder { color: var(--ink3); }
 .check-btn:active { transform: scale(.88); }
 
 .del-btn {
-  width: 32px; height: 32px; border-radius: 50%;
+  width: 28px; height: 28px; border-radius: 50%;
   border: none; background: none; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  font-size: 14px; color: var(--ink3);
+  font-size: 13px; color: var(--ink3);
   -webkit-tap-highlight-color: transparent;
   flex-shrink: 0;
 }
@@ -335,7 +414,11 @@ input::placeholder { color: var(--ink3); }
 }
 .cat-filter-btn:active { opacity: .75; }
 
-.items-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; margin-bottom: 26px; }
+.items-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px; margin-bottom: 26px;
+}
 .item-tile {
   background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--r);
   padding: 13px 6px; cursor: pointer;
@@ -350,7 +433,7 @@ input::placeholder { color: var(--ink3); }
 .tile-name { font-size: 11px; font-weight: 600; color: var(--ink2); text-align: center; line-height: 1.3; }
 .tile-check { position: absolute; top: 6px; right: 8px; font-size: 12px; color: var(--success); }
 
-/* ── CUSTOM ITEM FORM ────────────────────────────────────────── */
+/* ── CUSTOM ITEM ─────────────────────────────────────────────── */
 .divider-label {
   display: flex; align-items: center; gap: 10px;
   margin: 4px 0 14px;
@@ -362,8 +445,8 @@ input::placeholder { color: var(--ink3); }
 .custom-fields { margin-bottom: 12px; display: flex; flex-direction: column; gap: 9px; }
 .custom-row2 { display: flex; gap: 8px; align-items: stretch; }
 .custom-row2 select { flex: 1; min-width: 0; font-size: 14px; }
+.btn-add-custom { margin-bottom: 0; }
 
-/* Custom qty inline */
 .qty-inline {
   display: flex; align-items: center;
   background: var(--surface2); border: 1.5px solid var(--border);
@@ -376,8 +459,8 @@ input::placeholder { color: var(--ink3); }
   border-radius: 50%;
   -webkit-tap-highlight-color: transparent;
 }
-.qty-btn:active { background: var(--border2); border-radius: 50%; }
-#custom-qty-display {
+.qty-btn:active { background: var(--border2); }
+#custom-qty-display, #add-qty-display {
   font-family: var(--font-h); font-size: 15px; font-weight: 800;
   min-width: 24px; text-align: center; color: var(--ink);
 }
@@ -396,16 +479,17 @@ input::placeholder { color: var(--ink3); }
 }
 #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
-/* ── DIALOG ──────────────────────────────────────────────────── */
+/* ── OVERLAY / DIALOG ────────────────────────────────────────── */
 .overlay {
-  position: fixed; inset: 0; background: rgba(42,32,16,.5);
-  backdrop-filter: blur(5px);
+  position: fixed; inset: 0;
+  background: rgba(42,32,16,.5); backdrop-filter: blur(5px);
   display: flex; align-items: flex-end; justify-content: center;
   z-index: 200; opacity: 0; pointer-events: none; transition: opacity .22s;
 }
 .overlay.visible { opacity: 1; pointer-events: all; }
 .dialog {
-  background: var(--surface); border-radius: var(--r-xl) var(--r-xl) 0 0;
+  background: var(--surface);
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
   padding: 24px 20px calc(24px + env(safe-area-inset-bottom, 0px));
   width: 100%; max-width: 480px;
   transform: translateY(100%);
@@ -414,7 +498,8 @@ input::placeholder { color: var(--ink3); }
 }
 .overlay.visible .dialog { transform: translateY(0); }
 .dialog h3 { font-family: var(--font-h); font-size: 19px; font-weight: 900; margin-bottom: 7px; color: var(--ink); }
-.dialog p { font-size: 14px; color: var(--ink2); margin-bottom: 22px; }
+.dialog p  { font-size: 14px; color: var(--ink2); margin-bottom: 22px; }
+
 .dialog-btns { display: flex; gap: 10px; }
 .dialog-btns button {
   flex: 1; padding: 14px; border-radius: var(--r);
@@ -423,8 +508,44 @@ input::placeholder { color: var(--ink3); }
   -webkit-tap-highlight-color: transparent;
 }
 .dialog-btns button:active { opacity: .8; }
-#dlg-cancel { background: var(--surface2); color: var(--ink); }
+#dlg-cancel,
+#add-item-overlay .dialog-btns button:first-child,
+#note-overlay .dialog-btns button:first-child { background: var(--surface2); color: var(--ink); }
 #dlg-confirm { background: var(--danger); color: #fff; }
+#add-item-confirm-btn,
+#note-save-btn { background: var(--ink); color: #fff; }
+
+/* ── ADD-ITEM DIALOG ─────────────────────────────────────────── */
+.add-item-header {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 18px;
+}
+.add-item-emoji { font-size: 36px; flex-shrink: 0; }
+.add-item-name-text { font-family: var(--font-h); font-size: 20px; font-weight: 900; color: var(--ink); }
+.add-item-qty-row {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px;
+}
+.qty-label { font-size: 14px; font-weight: 600; color: var(--ink2); }
+.add-item-note-wrap label {
+  display: block; margin-bottom: 7px;
+  font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .07em; color: var(--ink2);
+  display: flex; align-items: center; gap: 7px;
+}
+
+/* ── NOTE DIALOG ─────────────────────────────────────────────── */
+.note-dlg-header {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+}
+.note-dlg-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: var(--note-bg);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  color: var(--note-col);
+}
+.note-dlg-icon svg { stroke: var(--note-col); }
+.note-dlg-header h3 { margin: 0; }
 
 /* ── DESKTOP HOVER ───────────────────────────────────────────── */
 @media (pointer: fine) {
