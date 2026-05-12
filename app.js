@@ -555,6 +555,9 @@ function renderLists() {
       <div class="progress-track">
         <div class="progress-fill${pct===100?" complete":""}" style="width:${pct}%"></div>
       </div>` : "";
+    const statusBadge = list.completed
+      ? `<span class="completed-badge">✓ Abgeschlossen</span>`
+      : "";
     return `
     <button class="list-card" onclick="openList('${list.id}')">
       <div class="list-card-top">
@@ -564,6 +567,7 @@ function renderLists() {
         </div>
         <div class="list-card-meta">
           <div class="list-card-count${pct===100?" all-done":""}">${done}/${total}${pct===100?" ✓":""}</div>
+          ${statusBadge}
         </div>
       </div>
       ${emojis.length ? `<div class="emoji-row">${emojiHtml}</div>` : ""}
@@ -638,6 +642,28 @@ function renderDetail() {
 
   const sectEl  = document.getElementById("cat-sections");
   const emptyEl = document.getElementById("detail-empty");
+  const completeBtnWrap = document.getElementById("complete-btn-wrap");
+  const completedBanner = document.getElementById("completed-banner");
+  const btnComplete     = document.getElementById("btn-complete-list");
+
+  // Completed banner
+  completedBanner.style.display = list.completed ? "flex" : "none";
+
+  // Complete / Reopen button
+  if (total > 0) {
+    completeBtnWrap.style.display = "block";
+    if (list.completed) {
+      btnComplete.textContent = "🔓 Einkauf wiederöffnen";
+      btnComplete.className   = "btn-reopen";
+      btnComplete.onclick     = () => reopenList();
+    } else {
+      btnComplete.textContent = "✅ Einkauf abschließen";
+      btnComplete.className   = "btn-complete";
+      btnComplete.onclick     = () => completeList();
+    }
+  } else {
+    completeBtnWrap.style.display = "none";
+  }
 
   if (!items.length) { sectEl.innerHTML=""; emptyEl.style.display="block"; return; }
   emptyEl.style.display="none";
@@ -716,7 +742,33 @@ window.removeItem = async function(itemId) {
   await saveList(updated);
 };
 
-// ── LISTE LÖSCHEN ─────────────────────────────────────────────────────────────
+// ── EINKAUF ABSCHLIESSEN ──────────────────────────────────────────────────────
+window.completeList = async function() {
+  const list = lists.find(l => l.id === activeId); if (!list) return;
+  const items = list.items || [];
+  const undone = items.filter(i => !i.done).length;
+  if (undone > 0) {
+    openDialog(
+      "Noch nicht fertig! ⚠️",
+      `Noch ${undone} Artikel ${undone === 1 ? "ist" : "sind"} nicht abgehakt. Trotzdem abschließen?`,
+      async () => {
+        await saveList({...list, completed: true});
+        showToast("🎉 Einkauf abgeschlossen!");
+        showView("lists");
+      },
+      "Trotzdem abschließen"
+    );
+  } else {
+    await saveList({...list, completed: true});
+    showToast("🎉 Einkauf abgeschlossen!");
+    showView("lists");
+  }
+};
+window.reopenList = async function() {
+  const list = lists.find(l => l.id === activeId); if (!list) return;
+  await saveList({...list, completed: false});
+  showToast("🔓 Einkauf wieder geöffnet");
+};
 window.confirmDeleteList = function() {
   const list=lists.find(l=>l.id===activeId);
   openDialog(
@@ -877,11 +929,12 @@ document.getElementById("note-overlay").addEventListener("click",e=>{
 });
 
 // ── LÖSCHEN-DIALOG ────────────────────────────────────────────────────────────
-function openDialog(title,body,onConfirm) {
-  document.getElementById("dlg-title").textContent=title;
-  document.getElementById("dlg-body").textContent=body;
+function openDialog(title, body, onConfirm, confirmText = "Löschen") {
+  document.getElementById("dlg-title").textContent  = title;
+  document.getElementById("dlg-body").textContent   = body;
+  document.getElementById("dlg-confirm").textContent = confirmText;
   document.getElementById("confirm-overlay").classList.add("visible");
-  dlgCallback=onConfirm;
+  dlgCallback = onConfirm;
 }
 window.closeDialog = function() {
   document.getElementById("confirm-overlay").classList.remove("visible");

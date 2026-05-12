@@ -97,6 +97,14 @@
         <div class="progress-fill" id="progress-fill" style="width:0%"></div>
       </div>
     </div>
+    <div id="completed-banner" class="completed-banner" style="display:none">
+      ✅ Dieser Einkauf wurde abgeschlossen!
+    </div>
+    <div id="complete-btn-wrap" class="complete-btn-wrap" style="display:none">
+      <button id="btn-complete-list" class="btn-complete" onclick="completeList()">
+        ✅ Einkauf abschließen
+      </button>
+    </div>
     <div id="cat-sections"></div>
     <div id="detail-empty" class="empty-state small" style="display:none">
       <div class="big-emoji" style="font-size:44px">🛒</div>
@@ -136,8 +144,14 @@
           <button class="qty-btn" onclick="adjustCustomQty(1)">+</button>
         </div>
       </div>
-      <input type="text" id="custom-note" placeholder="Notiz (optional) – z.B. Bio, bestimmte Marke…"
-             autocomplete="off" autocorrect="off" />
+      <div>
+        <label class="custom-note-label" for="custom-note">
+          Notiz <span class="label-optional">optional</span>
+        </label>
+        <input type="text" id="custom-note"
+               placeholder="z.B. Bio, bestimmte Marke…"
+               autocomplete="off" autocorrect="off" />
+      </div>
     </div>
     <button class="btn-primary btn-add-custom" onclick="addCustomItem()">
       Hinzufügen

@@ -30,7 +30,10 @@ body {
   font-family: var(--font-b);
   font-size: 16px;
   line-height: 1.5;
-  background: var(--bg);
+  background-color: var(--bg);
+  background-image: radial-gradient(rgba(42,32,16,.07) 1.5px, transparent 1.5px);
+  background-size: 22px 22px;
+  background-attachment: fixed;
   color: var(--ink);
   -webkit-font-smoothing: antialiased;
   overscroll-behavior-y: none;
@@ -443,6 +446,7 @@ input::placeholder, textarea::placeholder { color: var(--ink3); }
 .divider-label::before, .divider-label::after { content: ""; flex: 1; height: 1px; background: var(--border); }
 
 .custom-fields { margin-bottom: 12px; display: flex; flex-direction: column; gap: 9px; }
+.custom-fields > div { display: flex; flex-direction: column; gap: 5px; }
 .custom-row2 { display: flex; gap: 8px; align-items: stretch; }
 .custom-row2 select { flex: 1; min-width: 0; font-size: 14px; }
 .btn-add-custom { margin-bottom: 0; }
@@ -546,6 +550,56 @@ input::placeholder, textarea::placeholder { color: var(--ink3); }
 }
 .note-dlg-icon svg { stroke: var(--note-col); }
 .note-dlg-header h3 { margin: 0; }
+
+/* ── COMPLETE-LIST BUTTON ────────────────────────────────────── */
+.complete-btn-wrap { margin-bottom: 18px; }
+.btn-complete {
+  width: 100%; min-height: 50px;
+  border: none; border-radius: var(--r);
+  background: linear-gradient(135deg, #1E6B38 0%, #2E8A4A 100%);
+  color: #fff;
+  font-family: var(--font-h); font-size: 16px; font-weight: 800;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  box-shadow: 0 4px 14px rgba(30,107,56,.28);
+  transition: opacity .15s, transform .12s;
+}
+.btn-complete:active { transform: scale(.97); opacity: .9; }
+.btn-reopen {
+  width: 100%; min-height: 50px;
+  border: 1.5px solid var(--border2); border-radius: var(--r);
+  background: var(--surface); color: var(--ink2);
+  font-family: var(--font-h); font-size: 15px; font-weight: 800;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: opacity .15s, transform .12s;
+}
+.btn-reopen:active { transform: scale(.97); background: var(--surface2); }
+
+/* ── COMPLETED BADGE (list card) ─────────────────────────────── */
+.completed-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: #E6F4EC; color: #1E7A3E;
+  border: 1px solid #B8E0C8; border-radius: 20px;
+  padding: 3px 10px;
+  font-family: var(--font-h); font-size: 11px; font-weight: 800;
+}
+.completed-banner {
+  display: flex; align-items: center; gap: 8px;
+  background: #E6F4EC; border: 1px solid #B8E0C8;
+  border-radius: var(--r); padding: 10px 14px; margin-bottom: 16px;
+  font-size: 14px; font-weight: 600; color: #1E7A3E;
+}
+
+/* ── NOTE LABEL IN CUSTOM FORM ───────────────────────────────── */
+.custom-note-label {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .07em; color: var(--ink2);
+  margin-bottom: 0;
+}
 
 /* ── DESKTOP HOVER ───────────────────────────────────────────── */
 @media (pointer: fine) {
