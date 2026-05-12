@@ -14,10 +14,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;800;900&family=Nunito+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
 </head>
 <body>
-
 <div id="app">
 
-  <!-- ══ LOADING ══════════════════════════════════════════════════════ -->
+  <!-- ══ LOADING ══════════════════════════════════════════════ -->
   <div id="view-loading" class="view active">
     <div class="loading-wrap">
       <div class="loading-icon">🛒</div>
@@ -25,7 +24,7 @@
     </div>
   </div>
 
-  <!-- ══ VIEW: LISTEN-ÜBERSICHT ══════════════════════════════════════ -->
+  <!-- ══ LISTEN-ÜBERSICHT ═════════════════════════════════════ -->
   <div id="view-lists" class="view">
     <div class="hero-banner">
       <div class="hero-content">
@@ -35,33 +34,32 @@
       </div>
       <div class="hero-cart">🛒</div>
     </div>
-
     <div id="list-cards" class="list-cards"></div>
-
     <div id="lists-empty" class="empty-state" style="display:none">
       <div class="big-emoji">🛍️</div>
       <h3>Noch keine Listen</h3>
       <p>Erstelle deine erste Einkaufsliste!</p>
     </div>
-
-    <button class="fab" onclick="showView('new-list')" aria-label="Neue Liste">
-      <span class="fab-plus">+</span>
-      <span>Neue Liste</span>
+    <button class="fab" onclick="showView('new-list')">
+      <span class="fab-plus">+</span><span>Neue Liste</span>
     </button>
   </div>
 
-  <!-- ══ VIEW: NEUE LISTE ════════════════════════════════════════════ -->
+  <!-- ══ NEUE LISTE ════════════════════════════════════════════ -->
   <div id="view-new-list" class="view">
     <div class="topbar">
       <button class="btn-back" onclick="showView('lists')">←</button>
       <h2>Neue Liste</h2>
     </div>
-
     <div class="form-section">
       <div class="field">
-        <label for="new-name">Listenname</label>
+        <label for="new-name">
+          Listenname
+          <span class="label-optional">optional</span>
+        </label>
         <input type="text" id="new-name" placeholder="z.B. Wocheneinkauf…"
                autocomplete="off" autocorrect="off" spellcheck="false" />
+        <p class="field-hint">Leer lassen → wird automatisch benannt</p>
       </div>
       <div class="field">
         <label for="new-creator">Erstellt von</label>
@@ -82,22 +80,19 @@
     </div>
   </div>
 
-  <!-- ══ VIEW: LISTENDETAIL ══════════════════════════════════════════ -->
+  <!-- ══ LISTENDETAIL ══════════════════════════════════════════ -->
   <div id="view-detail" class="view">
     <div class="topbar">
       <button class="btn-back" onclick="showView('lists')">←</button>
       <div class="topbar-info">
-        <h2 id="detail-name">Liste</h2>
+        <h2 id="detail-name"></h2>
         <p class="detail-meta">
-          <span>📅</span>
-          <span id="detail-week"></span>
-          <span class="dot">·</span>
-          von <strong id="detail-creator"></strong>
+          <span>📅</span><span id="detail-week"></span>
+          <span class="dot">·</span>von <strong id="detail-creator"></strong>
         </p>
       </div>
-      <button class="btn-icon-danger" onclick="confirmDeleteList()" aria-label="Liste löschen">🗑</button>
+      <button class="btn-icon-danger" onclick="confirmDeleteList()">🗑</button>
     </div>
-
     <div id="detail-progress-wrap" class="progress-wrap" style="display:none">
       <div class="progress-row">
         <span id="progress-text"></span>
@@ -107,57 +102,57 @@
         <div class="progress-fill" id="progress-fill" style="width:0%"></div>
       </div>
     </div>
-
     <div id="cat-sections"></div>
-
     <div id="detail-empty" class="empty-state small" style="display:none">
       <div class="big-emoji" style="font-size:44px">🛒</div>
       <h3 style="font-size:17px">Noch leer</h3>
       <p>Tippe auf „Artikel hinzufügen"</p>
     </div>
-
-    <button class="fab" onclick="showView('add')" aria-label="Artikel hinzufügen">
-      <span class="fab-plus">+</span>
-      <span>Artikel hinzufügen</span>
+    <button class="fab" onclick="showView('add')">
+      <span class="fab-plus">+</span><span>Artikel hinzufügen</span>
     </button>
   </div>
 
-  <!-- ══ VIEW: ARTIKEL HINZUFÜGEN ═══════════════════════════════════ -->
+  <!-- ══ ARTIKEL HINZUFÜGEN ════════════════════════════════════ -->
   <div id="view-add" class="view">
     <div class="topbar">
       <button class="btn-back" onclick="showView('detail')">←</button>
       <h2>Hinzufügen</h2>
     </div>
-
     <div class="search-wrap">
       <span class="search-icon">🔍</span>
       <input type="search" id="search-input" placeholder="Suchen…"
              oninput="renderItemGrid()" autocomplete="off" />
     </div>
-
     <div id="cat-filters" class="cat-filters"></div>
     <div id="items-grid" class="items-grid"></div>
 
     <div class="divider-label">Eigener Artikel</div>
-    <div class="custom-row">
-      <input type="text" id="custom-name" placeholder="z.B. Hummus"
+    <div class="custom-fields">
+      <input type="text" id="custom-name" placeholder="Name (Icon wird automatisch gewählt)"
              autocomplete="off" autocorrect="off" />
-      <select id="custom-cat"></select>
+      <div class="custom-row2">
+        <select id="custom-cat"></select>
+        <div class="qty-inline">
+          <button class="qty-btn" onclick="adjustCustomQty(-1)">−</button>
+          <span id="custom-qty-display">1</span>
+          <button class="qty-btn" onclick="adjustCustomQty(1)">+</button>
+        </div>
+      </div>
     </div>
-    <button class="btn-primary" onclick="addCustomItem()" style="margin-bottom: env(safe-area-inset-bottom, 16px)">
+    <button class="btn-primary" onclick="addCustomItem()"
+            style="margin-bottom: env(safe-area-inset-bottom, 16px)">
       Hinzufügen
     </button>
   </div>
 
-</div><!-- /app -->
+</div>
 
-<!-- ── TOAST ───────────────────────────────────────────────────────── -->
 <div id="toast" role="alert" aria-live="polite"></div>
 
-<!-- ── CONFIRM DIALOG ─────────────────────────────────────────────── -->
 <div class="overlay" id="confirm-overlay" role="dialog" aria-modal="true">
   <div class="dialog">
-    <h3 id="dlg-title">Bist du sicher?</h3>
+    <h3 id="dlg-title"></h3>
     <p id="dlg-body"></p>
     <div class="dialog-btns">
       <button id="dlg-cancel" onclick="closeDialog()">Abbrechen</button>
