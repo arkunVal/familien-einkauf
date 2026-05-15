@@ -297,19 +297,19 @@ input::placeholder, textarea::placeholder { color: var(--ink3); }
 .item-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 11px 12px;
+  gap: 10px;
+  padding: 14px 12px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--r);
-  margin-bottom: 7px;
+  margin-bottom: 9px;
   box-shadow: var(--shadow-sm);
   transition: opacity .22s;
   -webkit-tap-highlight-color: transparent;
 }
 .item-row.done-row { opacity: .42; }
 
-.item-emoji { font-size: 22px; flex-shrink: 0; }
+.item-emoji { font-size: 26px; flex-shrink: 0; }
 
 /* Name + optional note-tag, takes all remaining space */
 .item-name-wrap {
@@ -317,10 +317,10 @@ input::placeholder, textarea::placeholder { color: var(--ink3); }
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
 }
 .item-name {
-  font-size: 15px; font-weight: 500; color: var(--ink);
+  font-size: 17px; font-weight: 600; color: var(--ink);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .item-row.done-row .item-name { text-decoration: line-through; }
@@ -330,12 +330,12 @@ input::placeholder, textarea::placeholder { color: var(--ink3); }
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--note-col);
   background: var(--note-bg);
   border-radius: 6px;
-  padding: 2px 7px;
+  padding: 3px 8px;
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -343,7 +343,7 @@ input::placeholder, textarea::placeholder { color: var(--ink3); }
   cursor: pointer;
 }
 .item-note-tag svg {
-  width: 11px; height: 11px;
+  width: 13px; height: 13px;
   flex-shrink: 0;
   stroke: var(--note-col);
 }
@@ -462,6 +462,26 @@ input::placeholder, textarea::placeholder { color: var(--ink3); }
 .custom-row2 { display: flex; gap: 8px; align-items: stretch; }
 .custom-row2 select { flex: 1; min-width: 0; font-size: 14px; }
 .btn-add-custom { margin-bottom: 0; }
+
+/* ── CUSTOM ADD PANEL (no-results state) ─────────────────────── */
+.custom-add-panel {
+  margin-top: 6px;
+  animation: fadeSlideUp .2s ease;
+}
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.custom-add-inner {
+  background: var(--surface);
+  border: 1.5px dashed var(--border2);
+  border-radius: var(--r);
+  padding: 16px 14px 14px;
+}
+.custom-add-hint {
+  font-size: 13px; font-weight: 600; color: var(--ink2);
+  margin: 0 0 14px; text-align: center;
+}
 
 .qty-inline {
   display: flex; align-items: center;

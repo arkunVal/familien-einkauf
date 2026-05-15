@@ -524,6 +524,10 @@ function showView(id) {
   if (id === "detail") renderDetail();
   if (id === "add") {
     document.getElementById("search-input").value = "";
+    document.getElementById("custom-name").value  = "";
+    document.getElementById("custom-note").value  = "";
+    const panel = document.getElementById("custom-add-panel");
+    if (panel) panel.style.display = "none";
     filterCat = null;
     renderCatFilters();
     renderItemGrid();
@@ -750,9 +754,16 @@ window.changeQty = async function(itemId, delta) {
   await saveList(updated);
 };
 window.removeItem = async function(itemId) {
-  const list=lists.find(l=>l.id===activeId); if(!list) return;
-  const updated={...list, items:list.items.filter(it=>it.id!==itemId)};
-  await saveList(updated);
+  const list = lists.find(l => l.id === activeId); if (!list) return;
+  const item = list.items.find(it => it.id === itemId);
+  openDialog(
+    "Artikel entfernen?",
+    `„${item?.name || "Dieser Artikel"}" wird aus der Liste entfernt.`,
+    async () => {
+      const updated = {...list, items: list.items.filter(it => it.id !== itemId)};
+      await saveList(updated);
+    }
+  );
 };
 
 // ── EINKAUF ABSCHLIESSEN ──────────────────────────────────────────────────────
@@ -820,17 +831,26 @@ function renderCatFilters() {
 window.setCatFilter = function(id) { filterCat=id; renderCatFilters(); renderItemGrid(); };
 
 window.renderItemGrid = function() {
-  const q=( document.getElementById("search-input").value||"").toLowerCase().trim();
+  const q=(document.getElementById("search-input").value||"").toLowerCase().trim();
   const list=lists.find(l=>l.id===activeId);
   const existing=new Set((list?.items||[]).map(i=>i.name));
   const filtered=ITEMS_DB.filter(it=>
     (!q||it.name.toLowerCase().includes(q))&&(!filterCat||it.cat===filterCat)
   );
   const grid=document.getElementById("items-grid");
-  if(!filtered.length){
-    grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:30px 0;color:var(--ink3);font-size:15px">Kein Artikel gefunden</div>`;
+  const panel=document.getElementById("custom-add-panel");
+  const nameEl=document.getElementById("custom-name");
+
+  if(!filtered.length) {
+    grid.innerHTML="";
+    panel.style.display="block";
+    // Pre-fill the name with whatever was typed, capitalised
+    if(q && nameEl.value.toLowerCase().trim()!==q) {
+      nameEl.value = q.charAt(0).toUpperCase()+q.slice(1);
+    }
     return;
   }
+  panel.style.display="none";
   grid.innerHTML=filtered.map(item=>{
     const inList=existing.has(item.name);
     return `
