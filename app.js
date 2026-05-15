@@ -399,8 +399,8 @@ function guessCategory(name) {
     if (rule.words.some(w => n.includes(w))) return rule.cat;
   }
 
-  // 4. Fallback — Gewürze/Zutaten als generische Kategorie
-  return "gewuerze";
+  // 4. Nichts gefunden → null, damit der Nutzer manuell wählen muss
+  return null;
 }
 
 // ── EMOJI-ERKENNUNG ───────────────────────────────────────────────────────────
@@ -566,15 +566,15 @@ const EMOJI_MAP = [
   [["silikon"],                  "🔧"],
 ];
 
-function guessEmoji(name) {
+function guessEmoji(name, catOverride = null) {
   const exact = ITEMS_DB.find(it => it.name.toLowerCase() === name.toLowerCase());
   if (exact) return exact.emoji;
   const n = name.toLowerCase();
   for (const [keywords, emoji] of EMOJI_MAP) {
     if (keywords.some(k => n.includes(k))) return emoji;
   }
-  // Category-based fallback
-  const cat = guessCategory(name);
+  // Category-based fallback: use override (manual selection) if provided
+  const cat = catOverride || guessCategory(name);
   const catFallbacks = {
     obst:"🥦", brot:"🍞", fleisch:"🥩", fertig:"🍽️", milch:"🥛",
     gewuerze:"🫙", getreide:"🌾", snacks:"🍿", getraenke:"🥤",
@@ -967,6 +967,10 @@ window.confirmDeleteList = function() {
 
 // ── ARTIKEL HINZUFÜGEN ────────────────────────────────────────────────────────
 const customCatEl = document.getElementById("custom-cat");
+// Blank placeholder option — shown when category can't be auto-detected
+const blankOpt = document.createElement("option");
+blankOpt.value = ""; blankOpt.textContent = "– Kategorie wählen –"; blankOpt.disabled = true;
+customCatEl.appendChild(blankOpt);
 CATEGORIES.forEach(c => {
   const o=document.createElement("option");
   o.value=c.id; o.textContent=`${c.emoji} ${c.name}`;
@@ -977,11 +981,20 @@ CATEGORIES.forEach(c => {
 let catManuallyChanged = false;
 customCatEl.addEventListener("change", () => { catManuallyChanged = true; });
 
+// Shared helper: apply auto-detected category to the select (only when not manually overridden)
+function applyAutoCategory(name) {
+  if (catManuallyChanged) return;
+  const guessed = guessCategory(name.trim());
+  if (guessed) {
+    customCatEl.value = guessed;
+  } else {
+    customCatEl.value = ""; // nothing matched → leave blank, user must choose
+  }
+}
+
 // Auto-assign category while typing the name, but only if not manually overridden
 document.getElementById("custom-name").addEventListener("input", function() {
-  if (catManuallyChanged) return;
-  const guessed = guessCategory(this.value.trim());
-  if (guessed) customCatEl.value = guessed;
+  applyAutoCategory(this.value);
 });
 
 function renderCatFilters() {
@@ -1038,6 +1051,9 @@ window.renderItemGrid = function() {
     // Pre-fill the name with whatever was typed, capitalised
     if(q && nameEl.value.toLowerCase().trim()!==q) {
       nameEl.value = q.charAt(0).toUpperCase()+q.slice(1);
+      // Auto-detect category for the pre-filled name (respects manual override)
+      catManuallyChanged = false;
+      applyAutoCategory(nameEl.value);
     }
     return;
   }
@@ -1093,10 +1109,10 @@ window.addCustomItem = async function() {
   const name =document.getElementById("custom-name").value.trim();
   const note =document.getElementById("custom-note").value.trim();
   if(!name){ showToast("⚠️ Namen eingeben!"); return; }
-  const emoji=guessEmoji(name);
-  // Use whatever category is currently shown in the select —
-  // either auto-detected (set while typing) or manually chosen by the user.
   const cat = document.getElementById("custom-cat").value;
+  if(!cat){ showToast("⚠️ Bitte eine Kategorie wählen!"); return; }
+  // Pass the selected category so the emoji fallback matches the chosen category
+  const emoji = guessEmoji(name, cat);
 
   await addItemToList(name,emoji,cat,customQty,note);
   document.getElementById("custom-name").value="";
@@ -1105,6 +1121,7 @@ window.addCustomItem = async function() {
   document.getElementById("custom-qty-display").textContent="1";
   // Reset manual override flag so the next item gets auto-detection again
   catManuallyChanged = false;
+  customCatEl.value = "";
 };
 
 async function addItemToList(name,emoji,cat,qty=1,note="") {
