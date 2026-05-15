@@ -973,6 +973,17 @@ CATEGORIES.forEach(c => {
   customCatEl.appendChild(o);
 });
 
+// Track whether the user manually picked a category
+let catManuallyChanged = false;
+customCatEl.addEventListener("change", () => { catManuallyChanged = true; });
+
+// Auto-assign category while typing the name, but only if not manually overridden
+document.getElementById("custom-name").addEventListener("input", function() {
+  if (catManuallyChanged) return;
+  const guessed = guessCategory(this.value.trim());
+  if (guessed) customCatEl.value = guessed;
+});
+
 function renderCatFilters() {
   const wrap=document.getElementById("cat-filters");
   wrap.innerHTML=
@@ -1083,22 +1094,17 @@ window.addCustomItem = async function() {
   const note =document.getElementById("custom-note").value.trim();
   if(!name){ showToast("⚠️ Namen eingeben!"); return; }
   const emoji=guessEmoji(name);
-  // Auto-Kategorie: erst guessCategory, dann ggf. den Select-Wert als Override
-  const autoCat = guessCategory(name);
-  // Wenn der User eine andere Kategorie explizit im Select gesetzt hat, nutze die.
-  // Standard ist immer "obst" beim Laden → prüfe ob User wirklich geändert hat
-  // Wir vertrauen dem guessCategory da es besser ist.
-  let cat = autoCat;
-  // Prüfe ob die Kategorie in CATEGORIES existiert, sonst fallback auf select
-  if(!CATEGORIES.find(c=>c.id===cat)) cat=document.getElementById("custom-cat").value;
+  // Use whatever category is currently shown in the select —
+  // either auto-detected (set while typing) or manually chosen by the user.
+  const cat = document.getElementById("custom-cat").value;
 
   await addItemToList(name,emoji,cat,customQty,note);
   document.getElementById("custom-name").value="";
   document.getElementById("custom-note").value="";
   customQty=1;
   document.getElementById("custom-qty-display").textContent="1";
-  // Update select to show the auto-detected category
-  document.getElementById("custom-cat").value=cat;
+  // Reset manual override flag so the next item gets auto-detection again
+  catManuallyChanged = false;
 };
 
 async function addItemToList(name,emoji,cat,qty=1,note="") {
