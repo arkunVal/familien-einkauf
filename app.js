@@ -528,6 +528,15 @@ function showView(id) {
     document.getElementById("custom-note").value  = "";
     const panel = document.getElementById("custom-add-panel");
     if (panel) panel.style.display = "none";
+    // Collapse filter panel
+    const catFilters = document.getElementById("cat-filters");
+    const filterBtn  = document.getElementById("filter-toggle-btn");
+    const chevron    = document.getElementById("filter-chevron");
+    const label      = document.getElementById("filter-toggle-label");
+    if (catFilters) { catFilters.classList.remove("cat-filters-open"); catFilters.classList.add("cat-filters-collapsed"); }
+    if (filterBtn)  filterBtn.setAttribute("aria-expanded","false");
+    if (chevron)    chevron.style.transform = "";
+    if (label)      label.textContent = "Filter";
     filterCat = null;
     renderCatFilters();
     renderItemGrid();
@@ -828,7 +837,30 @@ function renderCatFilters() {
         onclick="setCatFilter('${c.id}')">${c.emoji} ${c.name}</button>`;
     }).join("");
 }
-window.setCatFilter = function(id) { filterCat=id; renderCatFilters(); renderItemGrid(); };
+window.setCatFilter = function(id) {
+  filterCat = id;
+  renderCatFilters();
+  renderItemGrid();
+  // Update toggle label to show active filter
+  const label = document.getElementById("filter-toggle-label");
+  if (label) {
+    if (id) {
+      const cat = CATEGORIES.find(c => c.id === id);
+      label.textContent = cat ? `${cat.emoji} ${cat.name}` : "Filter";
+    } else {
+      label.textContent = "Filter";
+    }
+  }
+};
+window.toggleFilters = function() {
+  const panel = document.getElementById("cat-filters");
+  const btn   = document.getElementById("filter-toggle-btn");
+  const chevron = document.getElementById("filter-chevron");
+  const open = panel.classList.toggle("cat-filters-open");
+  panel.classList.toggle("cat-filters-collapsed", !open);
+  btn.setAttribute("aria-expanded", open);
+  chevron.style.transform = open ? "rotate(180deg)" : "";
+};
 
 window.renderItemGrid = function() {
   const q=(document.getElementById("search-input").value||"").toLowerCase().trim();

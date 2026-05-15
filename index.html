@@ -127,7 +127,18 @@
              oninput="renderItemGrid()" autocomplete="off" autocorrect="off" />
     </div>
 
-    <div id="cat-filters" class="cat-filters"></div>
+    <div class="filter-toggle-row">
+      <button class="filter-toggle-btn" id="filter-toggle-btn" onclick="toggleFilters()" aria-expanded="false">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+        </svg>
+        <span id="filter-toggle-label">Filter</span>
+        <svg class="filter-chevron" id="filter-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </button>
+    </div>
+    <div id="cat-filters" class="cat-filters cat-filters-collapsed"></div>
 
     <!-- Grid mit Vorschlägen -->
     <div id="items-grid" class="items-grid"></div>
