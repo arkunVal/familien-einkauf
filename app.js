@@ -859,7 +859,7 @@ function renderDetail() {
           // Notizbutton (Stift-Icon): immer sichtbar, aber nur wenn KEINE Notiz vorhanden
           const noteTag = it.note
             ? `<span class="item-note-tag" onclick="openNoteDialog('${it.id}')" title="${escAttr(it.note)}">
-                 ${NOTE_ICON} ${escHtml(it.note.length>40 ? it.note.slice(0,40)+"…" : it.note)}
+                 ${NOTE_ICON}<span class="item-note-tag-text">${escHtml(it.note)}</span>
                </span>`
             : "";
           const noteBtn = !it.note
